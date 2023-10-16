@@ -1,4 +1,5 @@
-﻿Imports HidLibrary
+﻿Imports System.Reflection
+Imports HidLibrary
 
 ''' <summary>
 ''' State of the relay.
@@ -11,7 +12,19 @@ End Enum
 Public Class RelayController
     Dim device As HidDevice
 
+
+    Private Function CurrentDomain_AssemblyResolve(sender As Object, args As ResolveEventArgs) As Assembly
+        Dim resourceName = "NoyitoRelay.HidLibrary.dll"  ' Adjust the namespace and resource name
+        Using stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)
+            Dim assemblyData(CInt(stream.Length) - 1) As Byte
+            stream.Read(assemblyData, 0, assemblyData.Length)
+            Return Assembly.Load(assemblyData)
+        End Using
+    End Function
+
     Public Sub New()
+        AddHandler AppDomain.CurrentDomain.AssemblyResolve, AddressOf CurrentDomain_AssemblyResolve
+
         OpenDevice()
     End Sub
 
